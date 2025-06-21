@@ -20,8 +20,9 @@ func AuthMiddleware(c *gin.Context) {
 
 	baseHeaderPrefix := core.GetAppConfig().AuthConfig.HeaderPrefix
 	tokenString := c.GetHeader("Authorization")
-	whetherHas := strings.HasPrefix(tokenString, baseHeaderPrefix)
-	if !whetherHas {
+
+	ok := strings.HasPrefix(tokenString, baseHeaderPrefix)
+	if !ok {
 		log.Println("인증 헤더가 없습니다.")
 		c.AbortWithStatusJSON(401, gin.H{
 			"error": "인증 헤더가 없습니다.",
@@ -38,8 +39,6 @@ func AuthMiddleware(c *gin.Context) {
 		})
 		return
 	}
-
-	// tkn.Username을 context에 저장
 	c.Set("username", tkn.Username)
 	c.Next()
 }

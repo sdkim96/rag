@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+
+	"github.com/sdkim96/rag-backend/db"
 	"github.com/sdkim96/rag-backend/router"
 )
 
@@ -15,6 +17,8 @@ func main() {
 	router.InitDefaultRouter(v1)
 	router.InitAuthRouter(v1)
 	router.InitConversationRouter(conversation)
+
+	db.NewHandler().MigrateTables()
 
 	engine.Run(":8080") // listen and serve on
 }
