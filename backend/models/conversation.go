@@ -1,20 +1,10 @@
 package models
 
-type DTO interface {
-	Mock() DTO
-}
+import "time"
 
-type NewConversationDTO struct {
-	ConversationID  string `json:"conversation_id"`
-	ParentMessageID string `json:"parent_message_id"`
-}
-
-func (n NewConversationDTO) Mock() DTO {
-	return NewConversationDTO{
-		ConversationID:  "mocked_conversation_id",
-		ParentMessageID: "mocked_parent_message_id",
-	}
-}
-
-type GetConversationsDTO struct {
+type Conversation struct {
+	ID        string    `json:"id"`
+	Title     string    `json:"title"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

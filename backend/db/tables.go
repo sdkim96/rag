@@ -48,7 +48,9 @@ func NewHandler() *DBHandler {
 		panic("failed to connect database: " + err.Error())
 	}
 
-	return &DBHandler{DB: db}
+	return &DBHandler{
+		db,
+	}
 }
 
 func (h *DBHandler) MigrateTables() {

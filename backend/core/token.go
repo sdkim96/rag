@@ -8,7 +8,7 @@ import (
 )
 
 type Token struct {
-	Username  string    `json:"username"`
+	UserName  string    `json:"username"`
 	ExpiredAt time.Time `json:"expired_at"`
 }
 
@@ -74,7 +74,7 @@ func DecodeToken(token string) (*Token, error) {
 
 	log.Printf("토큰에서 추출한 subject: %s, %s", sub, exp.Time)
 	return &Token{
-		Username:  sub,
+		UserName:  sub,
 		ExpiredAt: exp.Time,
 	}, nil
 }

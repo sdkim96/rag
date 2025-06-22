@@ -19,6 +19,10 @@ type AppConfig struct {
 	AuthConfig struct {
 		HeaderPrefix string `json:"header_prefix"` // Prefix for the authorization header
 	}
+	Mock struct {
+		Enable   bool   `json:"enable"`    // Enable mock mode
+		MockUser string `json:"mock_user"` // Mock user for testing
+	}
 }
 
 func GetAppConfig() *AppConfig {
@@ -51,6 +55,13 @@ func GetAppConfig() *AppConfig {
 			HeaderPrefix string `json:"header_prefix"` // Prefix for the authorization header
 		}{
 			HeaderPrefix: "Bearer ",
+		},
+		Mock: struct {
+			Enable   bool   `json:"enable"`    // Enable mock mode
+			MockUser string `json:"mock_user"` // Mock user for testing
+		}{
+			Enable:   true,
+			MockUser: "mockuser",
 		},
 	}
 }

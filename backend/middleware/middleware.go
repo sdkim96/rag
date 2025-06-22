@@ -14,6 +14,12 @@ func BasicMiddleWare(c *gin.Context) {
 	c.Next()
 }
 
+func MockAuthMiddleware(c *gin.Context) {
+	user := core.GetAppConfig().Mock.MockUser
+	c.Set("UserName", user)
+	c.Next()
+}
+
 func AuthMiddleware(c *gin.Context) {
 
 	log.Println("인증 필요한 요청입니다.")
@@ -39,6 +45,6 @@ func AuthMiddleware(c *gin.Context) {
 		})
 		return
 	}
-	c.Set("username", tkn.Username)
+	c.Set("UserName", tkn.UserName)
 	c.Next()
 }
