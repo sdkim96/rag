@@ -67,7 +67,6 @@ func getConversationsEndpoint(c *gin.Context) {
 		Code:    200,
 		Data:    dto,
 	})
-	return
 
 }
 
@@ -112,6 +111,5 @@ func getConversationByIDEndpoint(c *gin.Context) {
 		Code:    200,
 		Data:    dto,
 	})
-	return
 
 }

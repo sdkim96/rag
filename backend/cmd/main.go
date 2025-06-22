@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/sdkim96/rag-backend/core"
 	"github.com/sdkim96/rag-backend/db"
 	"github.com/sdkim96/rag-backend/router"
 )
@@ -10,6 +11,7 @@ import (
 func main() {
 
 	engine := gin.Default()
+	core.InitEnv(".backend.env")
 
 	v1 := engine.Group("/api/v1")
 	conversations := v1.Group("/conversations")

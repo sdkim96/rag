@@ -12,7 +12,7 @@ func GetConversations(username string) *models.GetConversationsDTO {
 
 	h := db.NewHandler()
 	conversations := make([]*db.Conversation, 0)
-	conversationDTOs := make([]*models.Conversation, 0)
+	conversationDTOs := make([]*models.ConversationMeta, 0)
 
 	// This query retrives all conversations except for the soft-deleted ones.
 	h.Where(
@@ -22,7 +22,7 @@ func GetConversations(username string) *models.GetConversationsDTO {
 	).Find(&conversations)
 
 	for _, cvs := range conversations {
-		cvsDTO := &models.Conversation{}
+		cvsDTO := &models.ConversationMeta{}
 		cvsDTO.ID = cvs.ID
 		cvsDTO.Title = cvs.Title
 		cvsDTO.CreatedAt = cvs.CreatedAt
@@ -37,4 +37,9 @@ func GetConversations(username string) *models.GetConversationsDTO {
 	return &models.GetConversationsDTO{
 		Conversations: conversationDTOs,
 	}
+}
+
+func GetConversationByID(username string, conversationID string) any {
+
+	return nil
 }

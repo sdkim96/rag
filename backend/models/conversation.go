@@ -11,5 +11,5 @@ type ConversationMeta struct {
 
 type ConverSation struct {
 	ConversationMeta
-	Messages []*Message `json:"messages"`
+	Messages []any `json:"messages"`
 }
