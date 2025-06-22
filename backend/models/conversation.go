@@ -9,5 +9,7 @@ type ConversationMeta struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type ConverSationDetail struct {
+type ConverSation struct {
+	ConversationMeta
+	Messages []*Message `json:"messages"`
 }
