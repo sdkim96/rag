@@ -14,7 +14,7 @@ const rootString string = "00000000-0000-0000-0000-000000000000"
 
 func InitConversationRouter(rg *gin.RouterGroup) {
 	rg.POST("/new", newConversationEndpoint)
-	rg.GET("/", middleware.MockAuthMiddleware, getConversationsEndpoint)
+	rg.GET("/", middleware.AuthMiddleware, getConversationsEndpoint)
 }
 
 // ## New Conversation Endpoint

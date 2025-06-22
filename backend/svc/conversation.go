@@ -11,23 +11,29 @@ func GetConversations(username string) (*models.GetConversationsDTO, error) {
 
 	h := db.NewHandler()
 
-	cvs := &db.Conversation{}
-	cvsDTO := &models.Conversation{}
-	h.First(cvs, "username = ?", username)
+	conversations := []db.Conversation{}
+	conversationDTOs := []models.Conversation{}
+	h.Find(&conversations, "user_name = ?", username)
 
-	cvsDTO.ID = cvs.ID
-	cvsDTO.Title = cvs.Title
-	cvsDTO.CreatedAt = cvs.CreatedAt
-	cvsDTO.UpdatedAt = cvs.UpdatedAt
+	for _, cvs := range conversations {
+		cvsDTO := models.Conversation{}
+		cvsDTO.ID = cvs.ID
+		cvsDTO.Title = cvs.Title
+		cvsDTO.CreatedAt = cvs.CreatedAt
+		cvsDTO.UpdatedAt = cvs.UpdatedAt
 
-	log.Printf(
-		"%s 유저에 대해 다음 대화 확인: %s, %s, %s, %s",
-		username,
-		cvsDTO.ID,
-		cvsDTO.Title,
-		cvsDTO.CreatedAt,
-		cvsDTO.UpdatedAt,
-	)
+		conversationDTOs = append(conversationDTOs, cvsDTO)
 
-	return models.MockGetConversation(), nil
+		log.Printf(
+			"%s 유저에 대해 다음 대화 확인: %s, %s, %s, %s",
+			username,
+			cvsDTO.ID,
+			cvsDTO.Title,
+			cvsDTO.CreatedAt,
+			cvsDTO.UpdatedAt,
+		)
+	}
+	return &models.GetConversationsDTO{
+		Conversations: convsersationDTOs,
+	}, nil
 }
