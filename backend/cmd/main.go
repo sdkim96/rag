@@ -12,11 +12,11 @@ func main() {
 	engine := gin.Default()
 
 	v1 := engine.Group("/api/v1")
-	conversation := v1.Group("/conversation")
+	conversations := v1.Group("/conversations")
 
 	router.InitDefaultRouter(v1)
 	router.InitAuthRouter(v1)
-	router.InitConversationRouter(conversation)
+	router.InitConversationsRouter(conversations)
 
 	db.NewHandler().MigrateTables()
 

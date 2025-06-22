@@ -7,33 +7,34 @@ import (
 	"github.com/sdkim96/rag-backend/models"
 )
 
-func GetConversations(username string) (*models.GetConversationsDTO, error) {
+// `GetConversations` retrieves all conversations binded to a specific user.
+func GetConversations(username string) *models.GetConversationsDTO {
 
 	h := db.NewHandler()
+	conversations := make([]*db.Conversation, 0)
+	conversationDTOs := make([]*models.Conversation, 0)
 
-	conversations := []db.Conversation{}
-	conversationDTOs := []models.Conversation{}
-	h.Find(&conversations, "user_name = ?", username)
+	// This query retrives all conversations except for the soft-deleted ones.
+	h.Where(
+		&db.Conversation{
+			UserName: username,
+		},
+	).Find(&conversations)
 
 	for _, cvs := range conversations {
-		cvsDTO := models.Conversation{}
+		cvsDTO := &models.Conversation{}
 		cvsDTO.ID = cvs.ID
 		cvsDTO.Title = cvs.Title
 		cvsDTO.CreatedAt = cvs.CreatedAt
 		cvsDTO.UpdatedAt = cvs.UpdatedAt
 
+		// This `append` operation returns pointer to slice.
 		conversationDTOs = append(conversationDTOs, cvsDTO)
 
-		log.Printf(
-			"%s 유저에 대해 다음 대화 확인: %s, %s, %s, %s",
-			username,
-			cvsDTO.ID,
-			cvsDTO.Title,
-			cvsDTO.CreatedAt,
-			cvsDTO.UpdatedAt,
-		)
 	}
+	log.Printf("Retrived %d conversations for user: %s", len(conversationDTOs), username)
+
 	return &models.GetConversationsDTO{
-		Conversations: convsersationDTOs,
-	}, nil
+		Conversations: conversationDTOs,
+	}
 }

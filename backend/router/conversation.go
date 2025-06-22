@@ -1,20 +1,21 @@
 package router
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
+	cst "github.com/sdkim96/rag-backend/constants"
 	"github.com/sdkim96/rag-backend/middleware"
 	"github.com/sdkim96/rag-backend/models"
 	"github.com/sdkim96/rag-backend/svc"
 )
 
-// rootString is a constant representing the root message ID for new conversations.
-const rootString string = "00000000-0000-0000-0000-000000000000"
-
-func InitConversationRouter(rg *gin.RouterGroup) {
+func InitConversationsRouter(rg *gin.RouterGroup) {
 	rg.POST("/new", newConversationEndpoint)
 	rg.GET("/", middleware.AuthMiddleware, getConversationsEndpoint)
+	rg.GET("/:ConversationID", middleware.AuthMiddleware, getConversationByIDEndpoint)
 }
 
 // ## New Conversation Endpoint
@@ -28,7 +29,7 @@ func newConversationEndpoint(c *gin.Context) {
 		Code:    200,
 		Data: models.NewConversationDTO{
 			ConversationID:  uuid.New().String(),
-			ParentMessageID: rootString,
+			ParentMessageID: cst.RootMessageID,
 		},
 	}
 	c.JSON(200, resp)
@@ -37,40 +38,80 @@ func newConversationEndpoint(c *gin.Context) {
 func getConversationsEndpoint(c *gin.Context) {
 
 	errorResp := &models.APIResponse{
-		Status:  "error",
-		Message: "Not implemented",
-		Code:    501,
+		Status:  cst.Error,
+		Message: cst.InternalServerError,
+		Code:    500,
 		Data:    nil,
 	}
 
 	username, exist := c.Get("UserName")
 	if !exist {
-		errorResp.Message = "인증되지 않은 사용자입니다."
+		log.Println("UserName not found in gin context")
+		errorResp.Message = cst.UnAuthorizedUserError
 		errorResp.Code = 401
 		c.AbortWithStatusJSON(401, errorResp)
 		return
 	}
 	usernameStr, ok := username.(string)
 	if !ok {
-		errorResp.Message = "유저 이름이 문자열이 아닙니다."
-		errorResp.Code = 500
+		log.Printf("Type assertion failed for username: %v", username)
 		c.AbortWithStatusJSON(500, errorResp)
 		return
 	}
 
-	dto, err := svc.GetConversations(usernameStr)
-	if err != nil {
-		errorResp.Message = "대화 목록을 가져오는 중 오류가 발생했습니다."
-		errorResp.Code = 500
-		c.AbortWithStatusJSON(500, errorResp)
-		return
-	}
+	dto := svc.GetConversations(usernameStr)
 
 	c.JSON(200, &models.APIResponse{
-		Status:  "ok",
-		Message: "대화 목록을 가져왔습니다.",
+		Status:  cst.Ok,
+		Message: cst.ConversationListRetrieved,
 		Code:    200,
 		Data:    dto,
 	})
+	return
+
+}
+
+func getConversationByIDEndpoint(c *gin.Context) {
+	errorResp := &models.APIResponse{
+		Status:  cst.Error,
+		Message: cst.InternalServerError,
+		Code:    500,
+		Data:    nil,
+	}
+
+	req := &models.GetConversationByIDReq{}
+	err := c.ShouldBindUri(req)
+	log.Printf("GetConversationByIDReq: %+v", req)
+
+	if err != nil {
+		errorResp.Message = cst.EntityError
+		errorResp.Code = 422
+		c.AbortWithStatusJSON(422, errorResp)
+		return
+	}
+	username, exist := c.Get("UserName")
+	if !exist {
+		log.Println("UserName not found in gin context")
+		errorResp.Message = cst.UnAuthorizedUserError
+		errorResp.Code = 401
+		c.AbortWithStatusJSON(401, errorResp)
+		return
+	}
+	usernameStr, ok := username.(string)
+	if !ok {
+		log.Printf("Type assertion failed for username: %v", username)
+		c.AbortWithStatusJSON(500, errorResp)
+		return
+	}
+
+	dto := svc.GetConversationByID(usernameStr, req.ConversationID)
+
+	c.JSON(200, &models.APIResponse{
+		Status:  cst.Ok,
+		Message: cst.ConversationListRetrieved,
+		Code:    200,
+		Data:    dto,
+	})
+	return
 
 }

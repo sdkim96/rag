@@ -22,24 +22,19 @@ func MockNewConversation() *NewConversationDTO {
 }
 
 type GetConversationsDTO struct {
-	Conversations []Conversation `json:"conversations"`
+	Conversations []*ConversationMeta `json:"conversations"`
 }
 
 func MockGetConversation() *GetConversationsDTO {
 	return &GetConversationsDTO{
-		Conversations: []Conversation{
+		Conversations: []*ConversationMeta{
 			{
 				ID:        "mocked_conversation_id_1",
 				Title:     "Mocked Conversation 1",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
-			{
-				ID:        "mocked_conversation_id_2",
-				Title:     "Mocked Conversation 2",
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
+			{},
 		},
 	}
 }
