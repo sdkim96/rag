@@ -9,6 +9,10 @@ type APIResponse struct {
 	Data    any    `json:"data,omitempty"`
 }
 
+type TokenDTO struct {
+	Token string `json:"token"`
+}
+
 type NewConversationDTO struct {
 	ConversationID  string `json:"conversation_id"`
 	ParentMessageID string `json:"parent_message_id"`

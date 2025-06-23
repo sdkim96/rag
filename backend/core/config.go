@@ -26,7 +26,12 @@ type AppConfig struct {
 		Secret   string `json:"secret"`   // Secret key for signing tokens
 	}
 	AuthConfig struct {
-		HeaderPrefix string `json:"header_prefix"` // Prefix for the authorization header
+		HeaderPrefix       string   `json:"header_prefix"`        // Prefix for the authorization header
+		GithubClientID     string   `json:"github_client_id"`     // GitHub OAuth client ID
+		GithubRedirectURL  string   `json:"github_redirect_url"`  // GitHub OAuth redirect URL
+		GithubScopes       []string `json:"github_scopes"`        // Scopes for GitHub OAuth
+		GithubState        string   `json:"github_state"`         // State parameter for GitHub OAuth
+		GithubClientSecret string   `json:"github_client_secret"` // GitHub OAuth client secret
 	}
 	Mock struct {
 		Enable   bool   `json:"enable"`    // Enable mock mode
@@ -113,9 +118,19 @@ func GetAppConfig() *AppConfig {
 			Secret:   "mysecretkey",
 		},
 		AuthConfig: struct {
-			HeaderPrefix string `json:"header_prefix"` // Prefix for the authorization header
+			HeaderPrefix       string   `json:"header_prefix"`        // Prefix for the authorization header
+			GithubClientID     string   `json:"github_client_id"`     // GitHub OAuth client ID
+			GithubRedirectURL  string   `json:"github_redirect_url"`  // GitHub OAuth
+			GithubScopes       []string `json:"github_scopes"`        // Scopes for GitHub OAuth
+			GithubState        string   `json:"github_state"`         // State parameter for GitHub OAuth
+			GithubClientSecret string   `json:"github_client_secret"` // GitHub OAuth client secret
 		}{
-			HeaderPrefix: "Bearer ",
+			HeaderPrefix:       "Bearer ",
+			GithubClientID:     os.Getenv("AUTHCONFIG_GITHUB_CLIENT_ID"),
+			GithubRedirectURL:  os.Getenv("AUTHCONFIG_GITHUB_REDIRECT_URL"),
+			GithubScopes:       strings.Split(os.Getenv("AUTHCONFIG_GITHUB_SCOPES"), ","),
+			GithubState:        os.Getenv("AUTHCONFIG_GITHUB_STATE"),
+			GithubClientSecret: os.Getenv("AUTHCONFIG_GITHUB_CLIENT_SECRET"),
 		},
 		Mock: struct {
 			Enable   bool   `json:"enable"`    // Enable mock mode
