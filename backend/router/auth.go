@@ -179,8 +179,8 @@ func meEndpoint(c *gin.Context) {
 
 	c.JSON(200, &models.APIResponse{
 		Status:  cst.Ok,
-		Message: "",
-		Code:    500,
+		Message: "User information retrieved successfully",
+		Code:    200,
 		Data: &models.UserDTO{
 			UserName: usernameStr,
 		},
