@@ -12,6 +12,9 @@ type APIResponse struct {
 type TokenDTO struct {
 	Token string `json:"token"`
 }
+type UserDTO struct {
+	UserName string `json:"user_name"`
+}
 
 type NewConversationDTO struct {
 	ConversationID  string `json:"conversation_id"`

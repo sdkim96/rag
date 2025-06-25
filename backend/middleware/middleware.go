@@ -6,7 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	cst "github.com/sdkim96/rag-backend/constants"
 	"github.com/sdkim96/rag-backend/core"
+	"github.com/sdkim96/rag-backend/models"
 )
 
 func BasicMiddleWare(c *gin.Context) {
@@ -21,8 +23,8 @@ func MockAuthMiddleware(c *gin.Context) {
 }
 
 func AuthMiddleware(c *gin.Context) {
-
-	log.Println("인증 필요한 요청입니다.")
+	var UserName string = ""
+	log.Println("This request needs authentication")
 
 	baseHeaderPrefix := core.GetAppConfig().AuthConfig.HeaderPrefix
 	tokenString := c.GetHeader("Authorization")
@@ -45,6 +47,30 @@ func AuthMiddleware(c *gin.Context) {
 		})
 		return
 	}
-	c.Set("UserName", tkn.UserName)
+
+	// TODO: Cache the token information on redis or local session not to fetch user info from GitHub every time
+	switch tkn.Issuer {
+	case cst.GithubIssuer:
+		ghUser, err := core.GetUserInfoFromGithub(tkn.UserName)
+		if err != nil {
+			log.Printf("Failed to fetch github: %v", err)
+			c.AbortWithStatusJSON(401, &models.APIResponse{
+				Status:  cst.Error,
+				Message: "Failed to fetch user info from GitHub",
+				Code:    401,
+				Data:    nil,
+			})
+			return
+		}
+		UserName = ghUser
+	case cst.InternalIssuer:
+		log.Printf("Internal Issuer: %s", tkn.UserName)
+		UserName = tkn.UserName
+	default:
+		log.Printf("Internal Issuer")
+		UserName = tkn.UserName
+	}
+
+	c.Set("UserName", UserName)
 	c.Next()
 }

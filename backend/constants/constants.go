@@ -6,6 +6,15 @@ const (
 	RootMessageID = "00000000-0000-0000-0000-000000000000" // Represents the root message ID for new conversations.
 )
 
+const (
+	GithubUserInfoURL      = "https://api.github.com/user" // URL to fetch user information from GitHub
+	GithubAuthorizationURL = "https://github.com/login/oauth/authorize"
+	GithubTokenURL         = "https://github.com/login/oauth/access_token"
+	GithubIssuer           = "github"
+
+	InternalIssuer = "internal" // Represents the internal issuer for tokens
+)
+
 // API Response Statuses
 const (
 	Ok    = "ok"    // Represents a successful operation
@@ -23,6 +32,8 @@ const (
 
 // Messages for API Responses
 const (
+	NewTokenCreated = "New token created" // Message when a new token is created
+
 	NewConversationCreated    = "New conversation created"    // Message when a new conversation is created
 	ConversationListRetrieved = "Conversation list retrieved" // Message when conversation list is retrieved
 )
