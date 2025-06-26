@@ -27,7 +27,7 @@ func newConversationEndpoint(c *gin.Context) {
 		Status:  "ok",
 		Message: "New conversation created",
 		Code:    200,
-		Data: models.NewConversationDTO{
+		Data: &models.NewConversationData{
 			ConversationID:  uuid.New().String(),
 			ParentMessageID: cst.RootMessageID,
 		},
@@ -59,13 +59,11 @@ func getConversationsEndpoint(c *gin.Context) {
 		return
 	}
 
-	dto := svc.GetConversations(usernameStr)
-
 	c.JSON(200, &models.APIResponse{
 		Status:  cst.Ok,
 		Message: cst.ConversationListRetrieved,
 		Code:    200,
-		Data:    dto,
+		Data:    svc.GetConversations(usernameStr),
 	})
 
 }
@@ -102,14 +100,19 @@ func getConversationByIDEndpoint(c *gin.Context) {
 		c.AbortWithStatusJSON(500, errorResp)
 		return
 	}
-
-	dto := svc.GetConversationByID(usernameStr, req.ConversationID)
+	data, err := svc.GetConversationByID(usernameStr, req.ConversationID)
+	if err != nil {
+		log.Printf("Error retrieving conversation by ID: %v", err)
+		errorResp.Message = cst.InternalServerError
+		c.AbortWithStatusJSON(500, errorResp)
+		return
+	}
 
 	c.JSON(200, &models.APIResponse{
 		Status:  cst.Ok,
 		Message: cst.ConversationListRetrieved,
 		Code:    200,
-		Data:    dto,
+		Data:    data,
 	})
 
 }

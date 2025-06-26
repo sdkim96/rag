@@ -1,47 +1,48 @@
 package models
 
-import "time"
-
 type APIResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-	Code    int    `json:"code"`
-	Data    any    `json:"data,omitempty"`
+	Status  string    `json:"status"`
+	Message string    `json:"message"`
+	Code    int       `json:"code"`
+	Data    DataField `json:"data,omitempty"`
 }
 
-type TokenDTO struct {
+type DataField interface {
+	Mock()
+}
+
+// GET /token
+type TokenData struct {
 	Token string `json:"token"`
 }
-type UserDTO struct {
+
+func (t *TokenData) Mock() {}
+
+// GET /me
+type UserData struct {
 	UserName string `json:"user_name"`
 }
 
-type NewConversationDTO struct {
+func (u *UserData) Mock() {}
+
+// POST /conversations/new
+type NewConversationData struct {
 	ConversationID  string `json:"conversation_id"`
 	ParentMessageID string `json:"parent_message_id"`
 }
 
-func MockNewConversation() *NewConversationDTO {
-	return &NewConversationDTO{
-		ConversationID:  "mocked_conversation_id",
-		ParentMessageID: "mocked_parent_message_id",
-	}
-}
+func (n *NewConversationData) Mock() {}
 
-type GetConversationsDTO struct {
+// GET /conversations
+type GetConversationsData struct {
 	Conversations []*ConversationMeta `json:"conversations"`
 }
 
-func MockGetConversation() *GetConversationsDTO {
-	return &GetConversationsDTO{
-		Conversations: []*ConversationMeta{
-			{
-				ID:        "mocked_conversation_id_1",
-				Title:     "Mocked Conversation 1",
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
-			{},
-		},
-	}
+func (g *GetConversationsData) Mock() {}
+
+// Get /conversations/:ConversationID
+type GetConversationByIDData struct {
+	Conversation
 }
+
+func (g *GetConversationByIDData) Mock() {}

@@ -144,7 +144,7 @@ func oauthGithubCallbackEndpoint(c *gin.Context) {
 		Status:  cst.Ok,
 		Message: cst.NewTokenCreated,
 		Code:    200,
-		Data: &models.TokenDTO{
+		Data: &models.TokenData{
 			Token: tkn,
 		},
 	})
@@ -181,7 +181,7 @@ func meEndpoint(c *gin.Context) {
 		Status:  cst.Ok,
 		Message: "User information retrieved successfully",
 		Code:    200,
-		Data: &models.UserDTO{
+		Data: &models.UserData{
 			UserName: usernameStr,
 		},
 	})
