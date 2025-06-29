@@ -21,5 +21,11 @@ func (hss Histories) GetHistory() string {
 }
 
 func (hss *Histories) SetHistory(history *History) {
+
+	// The reason for using dereferencing
+	//
+	// If we append elements to a slice beyond current capacity, append() method
+	// allocates a new backend array.
+	// This means that if we recives slice type not by dereferencing, It could not effect to original slice.
 	*hss = append(*hss, history)
 }
