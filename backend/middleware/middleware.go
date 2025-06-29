@@ -31,9 +31,9 @@ func AuthMiddleware(c *gin.Context) {
 
 	ok := strings.HasPrefix(tokenString, baseHeaderPrefix)
 	if !ok {
-		log.Println("인증 헤더가 없습니다.")
+		log.Println("There is no Authorization header or it does not start with the expected prefix")
 		c.AbortWithStatusJSON(401, gin.H{
-			"error": "인증 헤더가 없습니다.",
+			"error": "There is no Authorization header or it does not start with the expected prefix",
 		})
 		return
 	}
@@ -41,9 +41,9 @@ func AuthMiddleware(c *gin.Context) {
 
 	tkn, err := core.DecodeToken(tokenString)
 	if err != nil {
-		log.Printf("토큰 파싱 실패: %v", err)
+		log.Printf("Failed to parse token: %v", err)
 		c.AbortWithStatusJSON(401, gin.H{
-			"error": "토큰 파싱 실패",
+			"error": "Failed to parse token",
 		})
 		return
 	}

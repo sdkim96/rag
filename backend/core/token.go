@@ -43,7 +43,7 @@ func EncodeToken(username string, issuer string) (string, error) {
 		},
 	)
 	s, err = tkn.SignedString(bytesString)
-	log.Printf("%s 님의 JWT 토큰: %s", username, s)
+	log.Printf("Username: %s,  JWT: %s", username, s)
 	if err != nil {
 		return s, err
 	}
@@ -54,7 +54,7 @@ func EncodeToken(username string, issuer string) (string, error) {
 func DecodeToken(token string) (*ClaimsDecoded, error) {
 	tkn, err := jwt.Parse(
 		token,
-		func(token *jwt.Token) (interface{}, error) {
+		func(token *jwt.Token) (any, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				log.Printf("Unexpected signing method: %v", token.Header["alg"])
 				return nil, jwt.ErrSignatureInvalid
@@ -67,7 +67,7 @@ func DecodeToken(token string) (*ClaimsDecoded, error) {
 		log.Printf("Failed to parse JWT token: %v", err)
 		return &ClaimsDecoded{}, err
 	}
-	// TODO: 여기서 토큰의 유효성을 검사하고, 필요한 정보를 추출하여 Token 구조체를 반환해야 합니다.
+
 	sub, err := tkn.Claims.GetSubject()
 	if err != nil {
 		log.Printf("Failed to get subject from claims: %v", err)
@@ -94,7 +94,7 @@ func DecodeToken(token string) (*ClaimsDecoded, error) {
 
 func GetUserInfoFromGithub(githubToken string) (string, error) {
 
-	responseModel := make(map[string]interface{})
+	responseModel := make(map[string]any)
 
 	request, err := http.NewRequest("GET", cst.GithubUserInfoURL, nil)
 	if err != nil {
