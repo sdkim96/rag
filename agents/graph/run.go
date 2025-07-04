@@ -1,79 +1,107 @@
 package graph
-
+ 
 type Spec struct {
-	Trigger bool `json:"trigger"` // If true, this node will be executed as a trigger node
-	Done    bool `json:"done"`    // If true, this node will be executed as a done node
-	Error   bool `json:"error"`   // If true, this node will be executed as an error node
+    Trigger bool `json:"trigger"` 
+    Done    bool `json:"done"`    
+    Error   bool `json:"error"`   
+	Next []string `json:"next"` // Next nodes to trigger
 }
 type CompiledNode struct {
-	ID    string                        `json:"id"`
-	fnPtr func(StateSchema) StateSchema `json:"-"`
-	Spec  Spec                          `json:"spec"` // The spec of the node
+    ID    string                        `json:"id"`
+    fnPtr func(StateSchema) StateSchema `json:"-"`
+    Spec  Spec                          `json:"spec"` // The spec of the node
 }
-
+ 
 type CompiledGraph struct {
-	ID            string         `json:"id"`
-	CompiledNodes []CompiledNode `json:"compied_nodes"`
-	EntryNode     string         `json:"entry_node"` // The entry node of the graph
+    ID            string                   `json:"id"`
+    CompiledNodes map[string]*CompiledNode `json:"compied_nodes"`
+    EntryNode     string                   `json:"entry_node"` // The entry node of the graph
 }
-
+ 
 func (gb *GraphBuilder) Compile(data StateSchema) *CompiledGraph {
-	seenNodes := make(map[string]*Spec)
-	compiledNodes := make([]CompiledNode, 0, len(gb.Nodes))
+    nodesHashmap := make(map[string]*CompiledNode)
+    entryNode := ""
+ 
+    for i, node := range gb.Nodes {
+        trigger := false
+        if i == 0 {
+            entryNode = node.ID
+            trigger = true
+        }
+        nodesHashmap[node.ID] = &CompiledNode{
+            ID:    node.ID,
+            fnPtr: node.fnPtr,
+            Spec: Spec{
+                Trigger: trigger,
+                Done:    false,
+                Error:   false,
+            },
+        }
+    }
+	for j, edge := range gb.Edges {
+		from := edge.SourceID
+		to := edge.TargetID
 
-	for i, node := range gb.Nodes {
-		trigger := false
-		if i == 0 {
-			trigger = true
-		}
-		seenNodes[node.ID] = &Spec{
-			Trigger: trigger,
-			Done:    false,
-			Error:   false,
-		}
-		compiledNode := CompiledNode{
-			ID:    node.ID,
-			fnPtr: node.fnPtr,
-			Spec:  *seenNodes[node.ID],
-		}
-		compiledNodes = append(compiledNodes, compiledNode)
+		nodesHashmap[from].Spec.Next = append(nodesHashmap[from].Spec.Next, edge.TargetID)
 	}
-	return &CompiledGraph{
-		ID:            gb.ID,
-		CompiledNodes: compiledNodes,
-		EntryNode:     gb.Nodes[0].ID,
-	}
-
+ 
+    return &CompiledGraph{
+        ID:            gb.ID,
+        CompiledNodes: nodesHashmap,
+        EntryNode:     entryNode,
+    }
 }
+ 
+func InvokeNode(
+    node *CompiledNode,
+    data StateSchema,
+    ch chan StateSchema,
+	dp *Dispatcher, // Assuming you have a Dispatcher to handle next nodes
+) {
+    result := node.fnPtr(data)
+    node.Spec.Done = true
 
-func NodeWrapFn(fnPtr func(StateSchema) StateSchema, data StateSchema, ch chan StateSchema) {
-	result := fnPtr(data)
+
+	// TODO: Give dispatcher next nodes to trigger
+	dp.Recieve(node.Spec.Next)
+
 	ch <- result
 }
-
+ 
 func (cp *CompiledGraph) Run(data StateSchema) StateSchema {
-
-	// for tick := range cp.Stream(data) {
-
-	// }
-	// return data
-	return data
+ 
+    // for tick := range cp.Stream(data) {
+ 
+    // }
+    // return data
+    return data
 }
+ 
+func (cp *CompiledGraph) Stream(data StateSchema, stream chan StateSchema) {
+ 
+    ch := make(chan StateSchema)
+    defer close(ch)
+ 
+    node := cp.CompiledNodes[cp.EntryNode]
+    go InvokeNode(node, data, ch, cp.Dispatcher)
+    val := <-ch
+    stream <- val
+ 
+    for {
+        tick := cp.Dispatcher.Tick()
 
-func (cp *CompiledGraph) Stream(data StateSchema, tickData chan StateSchema) {
-
-	ch := make(chan StateSchema)
-
-	start := cp.EntryNode
-	for _, node := range cp.CompiledNodes {
-		if node.ID == start {
-			go NodeWrapFn(node.fnPtr, data, ch)
+		if len(tick) == 0 {
 			break
 		}
-	}
-
-	val := <-ch
-	tickData <- val
-	close(ch)
-
+        for _, node := range tick {
+            if node.Spec.Trigger == true {
+                go InvokeNode(node, val, ch cp.Dispatcher)
+                val := <-ch
+                stream <- val
+            }
+           
+        }
+ 
+    }
+ 
 }

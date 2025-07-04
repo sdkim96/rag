@@ -38,9 +38,10 @@ func TestBuild(t *testing.T) {
 	fmt.Println(GraphBuilder.ID)
 	compiledGraph := GraphBuilder.Compile(&BaseState{A: 0, B: 0})
 
-	tick := make(chan StateSchema)
-	go compiledGraph.Stream(&BaseState{A: 0, B: 0}, tick)
-	for data := range tick {
+	stream := make(chan StateSchema)
+	defer close(stream)
+	go compiledGraph.Stream(&BaseState{A: 0, B: 0}, stream)
+	for data := range stream {
 		fmt.Println("Tick data:", data)
 	}
 }

@@ -6,8 +6,7 @@ type Node struct {
 }
 
 type Edge struct {
-	ID       string                        `json:"id"`
-	SourceID string                        `json:"source"`
-	TargetID string                        `json:"target"`
-	fnPtr    func(StateSchema) StateSchema `json:"-"`
+	ID       string `json:"id"`
+	SourceID string `json:"source"`
+	TargetID string `json:"target"`
 }
