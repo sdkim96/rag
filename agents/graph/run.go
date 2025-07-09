@@ -57,7 +57,6 @@ func (cp *CompiledGraph) invokeNode(
 	data StateSchema,
 	ch chan StateSchema,
 ) {
-	defer close(ch)
 	thisNode := cp.CompiledNodes[nodeID]
 	result := thisNode.fnPtr(data)
 	thisNode.Spec.Done = true
@@ -82,9 +81,10 @@ func (cp *CompiledGraph) Stream(
 	stream chan StateSchema,
 	dp *Dispatcher,
 ) {
-	defer close(stream)
 	cp.Dispatcher = dp
 	internalCh := make(chan StateSchema)
+	defer close(internalCh)
+	defer close(stream)
 
 	go cp.invokeNode(cp.EntryNode, data, internalCh)
 	val := <-internalCh
@@ -97,7 +97,6 @@ func (cp *CompiledGraph) Stream(
 			break
 		}
 		for _, nodeID := range tick {
-			internalCh := make(chan StateSchema)
 			go cp.invokeNode(nodeID, val, internalCh)
 			val = <-internalCh
 			stream <- val

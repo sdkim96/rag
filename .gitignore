@@ -33,3 +33,4 @@ go.work.sum
 # .vscode/
 .venv/
 /__pycache__/
+__pycache__/
