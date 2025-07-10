@@ -9,5 +9,7 @@ class Trip(BaseModel):
     trip_count: int = Field(..., description="The number of trips made by the task.")
 
 class TaskShell(BaseModel):
-    trip: Trip = Field(..., description="The trip details associated with the task.")
     task_id: str = Field(..., description="The task details.")
+    context_id: str = Field(..., description="The context ID associated with the task.")
+    trip: Trip = Field(..., description="The trip details associated with the task.")
+    

@@ -6,7 +6,7 @@ from a2a.server.request_handlers import DefaultRequestHandler
 
 from pyagents.search.main import SearchAgentServer
 from pyagents.entrypoint import EntrypointCard, Entrypoint
-from pyagents.control_plane import ControlPlane, ControlPlaneCard
+from pyagents.control_plane import ControlPlane, ControlPlaneCard, ControlPlaneApp
 
 
 EntrypointHandler = DefaultRequestHandler(
@@ -21,9 +21,8 @@ EntrypointApp = A2AStarletteApplication(
 
 
 def main():
+    uvicorn.run(EntrypointApp.build(), host="localhost", port=8005)
     
-    search_agent = SearchAgentServer
-    uvicorn.run(search_agent.build(), host="localhost", port=8001)
 
 if __name__ == "__main__":
     main()

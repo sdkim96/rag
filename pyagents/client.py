@@ -23,7 +23,7 @@ async def main() -> None:
 
     # --8<-- [start:A2ACardResolver]
 
-    base_url = 'http://127.0.0.1:8001'
+    base_url = 'http://127.0.0.1:8005'
 
     async with httpx.AsyncClient() as httpx_client:
         resolver = A2ACardResolver(

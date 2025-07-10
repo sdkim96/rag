@@ -2,7 +2,7 @@ import uuid
 import httpx
 
 from a2a.server.apps import A2AStarletteApplication
-from a2a.server.tasks import InMemoryTaskStore
+from a2a.server.tasks import InMemoryTaskStore, TaskUpdater
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.types import (
     AgentCapabilities,
@@ -12,6 +12,7 @@ from a2a.types import (
     MessageSendParams,
     SendMessageRequest,
     SendStreamingMessageRequest,
+    TaskState,
 )
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
@@ -51,8 +52,19 @@ class Entrypoint(AgentExecutor):
         if task is None:
             task = new_task(message)
 
+        updater = TaskUpdater(event_queue, task.id, task.contextId)
+        await updater.update_status(
+            state=TaskState.submitted,
+            message=new_agent_text_message(
+                "🔍 Searching for valuable information..",
+                task.contextId,
+                task.id,
+            )
+        )
+        #TODO: dunno task_id or task needed
         shell = TaskShell(
             task_id=task.id,
+            context_id=task.contextId,
             trip=Trip(
                 departure='entrypoint',
                 destination='control_plane',
@@ -68,7 +80,7 @@ class Entrypoint(AgentExecutor):
                 params=MessageSendParams(
                     message=message,
                     metadata={
-                        "shell": shell.model_dump(mode='json', exclude_none=True),
+                        "task_shell": shell.model_dump(mode='json', exclude_none=True),
                     }
                 )
             )
@@ -89,7 +101,7 @@ class Entrypoint(AgentExecutor):
 EntrypointCard = AgentCard(
     name = 'Search Agent',
     description = 'An agent that performs search operations',
-    url = 'http://localhost:8001',
+    url = 'http://localhost:8005',
     version = '1.0.0',
     defaultInputModes = ['text'],
     defaultOutputModes = ['text'],

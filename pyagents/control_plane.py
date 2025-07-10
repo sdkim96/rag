@@ -1,4 +1,4 @@
-import asyncio
+import uvicorn
 
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.tasks import InMemoryTaskStore
@@ -19,7 +19,6 @@ from a2a.utils import (
 )
 from a2a.server.tasks import TaskUpdater
 
-from pyagents._types.task import TaskPod
 from typing_extensions import override
 
 class ControlPlane(AgentExecutor):
@@ -34,10 +33,10 @@ class ControlPlane(AgentExecutor):
         context: RequestContext,
         event_queue: EventQueue,
     ) -> None:
-        
-        pod = TaskPod(
-            
-        )
+        task = context.current_task
+        print("TaskID: ", task.id)
+        shell = context._params.metadata.get('task_shell', None)
+        print(context)
         
         
         
@@ -51,10 +50,10 @@ class ControlPlane(AgentExecutor):
         raise Exception('cancel not supported')
 
 
-SearchAgentCard = AgentCard(
+ControlPlaneCard = AgentCard(
     name = 'Search Agent',
     description = 'An agent that performs search operations',
-    url = 'http://localhost:8001',
+    url = 'http://localhost:8006',
     version = '1.0.0',
     defaultInputModes = ['text'],
     defaultOutputModes = ['text'],
@@ -72,11 +71,20 @@ SearchAgentCard = AgentCard(
 )
 
 RequestHandler = DefaultRequestHandler(
-    agent_executor=SearchAgent(),
+    agent_executor=ControlPlane(),
     task_store=InMemoryTaskStore(),
 )
 
-SearchAgentServer = A2AStarletteApplication(
-    agent_card=SearchAgentCard,
+ControlPlaneApp = A2AStarletteApplication(
+    agent_card=ControlPlaneCard,
     http_handler=RequestHandler,
 )
+
+
+def main():
+    uvicorn.run(ControlPlaneApp.build(), host="localhost", port=8006)
+    
+
+if __name__ == "__main__":
+    main()
+
